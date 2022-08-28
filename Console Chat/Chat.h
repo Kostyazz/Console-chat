@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <vector>
 #include "User.h"
@@ -8,17 +9,19 @@ using namespace std;
 class Chat
 {
 private:
-	string currentUserName;
+	string currentUserName = "";
 	vector<User*> users;
 	vector<Message*> messages;
+	const string channel = "#all";
 public:
-	
+	Chat() = default;
+	~Chat();
 	void initialize();
 	void loginMenu();
 	void chatMenu();
 	void showChat();
-	void login();
+	int login();
 	void logout();
-	void signUp();
-	void addMessage();
+	int signUp();
+	void addMessage(Message* msg);
 };
