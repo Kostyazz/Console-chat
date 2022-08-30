@@ -1,4 +1,6 @@
 #include "Chat.h"
+#include <fstream>
+#include <exception>
 
 Chat::~Chat()
 {
@@ -8,16 +10,46 @@ Chat::~Chat()
 
 void Chat::initialize()
 {
-	users.push_back(new User("Vasiliy", "1234", "Vasya"));
-	users.push_back(new User("Petr", "1111", "King"));
-	users.push_back(new User("a", "a", "a"));
-	users.push_back(new User("b", "b", "b"));
+	//fill users array with login credentials from "Login.txt"
+	//separator is ' '
+	try {
+		ifstream loginFile;
+		loginFile.open("Login.txt");
+		if (! loginFile.is_open()) {
+			throw runtime_error("ERROR: Login file not found");
+		}
+		while (loginFile) {
+			string login;
+			string password;
+			string name;
+			loginFile >> login >> password >> name;
+			loginFile.ignore();
+			for (char c : login) {
+				if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9')) {
+					throw exception("ERROR: bad credentials in the file");
+				}
+			}
+			for (char c : name) {
+				if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9')) {
+					throw exception("ERROR: bad credentials in the file");
+				}
+			}
+			if (name == "") {
+				throw exception("ERROR: bad credentials in the file");
+			}
+			users.push_back(new User(login, password, name));
+		}
+	}
+	catch (exception ex) {
+		cerr << ex.what() << endl;
+		exit(1);
+	}
 }
 
 void Chat::loginMenu()
 {
 	char command = 0;
-	// Successful login is 0;
+	// Successful loginResult is 0;
 	int loginResult = -1; 
 	do {
 		cout << "Please enter l to login, s to sign up, q to quit" << endl;
@@ -41,7 +73,7 @@ void Chat::loginMenu()
 void Chat::chatMenu()
 {
 	showChat();
-	cout << "Just enter a message to send it to all. Enter '/dm <username> <message>' to send direct message to another user. Enter '/logout' to logout" << endl;
+	cout << "Enter a message to send it to all. Enter '/dm <username> <message>' to send direct message to another user. Enter '/logout' to logout" << endl;
 	cin.ignore();
 	while (true) {
 		string msg;
@@ -76,8 +108,7 @@ void Chat::chatMenu()
 		}
 		if (to == "") {
 			cout << "target user not found" << endl;
-		}
-		else {
+		} else {
 			addMessage(new Message(currentUserName, to, text));
 		}
 	}
@@ -128,10 +159,22 @@ int Chat::signUp()
 			return 2;
 		}
 	}
-	cout << "Please enter your password: ";
+	cout << "Please enter your password. Space symbol not allowed: ";
 	cin >> password;
-	cout << "Please enter your chat name: ";
+	for (char c : login) {
+		if (c == ' ') {
+			cout << "Space symbol not allowed" << endl;
+			return 2;
+		}
+	}
+	cout << "Please enter your chat name. Only digits and latin symbols allowed: ";
 	cin >> name;
+	for (char c : name) {
+		if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9')) {
+			cout << "Only digits and latin symbols allowed" << endl;
+			return 2;
+		}
+	}
 	for (auto user : users) {
 		if (user->getLogin() == login) {
 			cout << "This login is taken" << endl;
@@ -144,6 +187,20 @@ int Chat::signUp()
 
 	}
 	users.push_back(new User(login, password, name));
+	try {
+		ofstream loginFile;
+		loginFile.open("Login.txt", ios::app);
+		if (!loginFile.is_open()) {
+			throw runtime_error("ERROR: Login file not found");
+		}
+		loginFile << endl << login << " " << password << " " << name;
+		
+	}
+	catch (exception ex) {
+		cerr << ex.what() << endl;
+		exit(1);
+	}
+
 	currentUserName = name;
 	return 0;
 }
