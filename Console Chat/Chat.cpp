@@ -34,13 +34,13 @@ void Chat::initialize()
 					throw exception("ERROR: bad credentials in the file");
 				}
 			}
-			if (name == "") {
+			if (name.empty()) {
 				throw exception("ERROR: bad credentials in the file");
 			}
 			users.push_back(new User(login, password, name));
 		}
 	}
-	catch (exception ex) {
+	catch (exception& ex) {
 		cerr << ex.what() << endl;
 		exit(1);
 	}
@@ -63,6 +63,8 @@ void Chat::loginMenu()
 				break;
 			case 'q':
 				exit(0);
+				break;
+			default:
 				break;
 		}
 	} while (loginResult);
@@ -92,7 +94,7 @@ void Chat::chatMenu()
 			size_t space2 = msg.find(' ', space1 + 1);
 			command = msg.substr(0, space1);
 			arg = msg.substr(space1 + 1, space2 - space1 - 1);
-			text = msg.substr(space2 + 1, -1);
+			text = msg.substr(space2 + 1, msg.size());
 			if (command == "/logout") {
 				logout();
 				break;
@@ -106,7 +108,7 @@ void Chat::chatMenu()
 				}
 			}
 		}
-		if (to == "") {
+		if (to.empty()) {
 			cout << "target user not found" << endl;
 		} else {
 			addMessage(new Message(currentUserName, to, text));
@@ -143,7 +145,7 @@ int Chat::login()
 
 void Chat::logout()
 {
-	currentUserName = "";
+	currentUserName.clear();
 }
 
 int Chat::signUp()
