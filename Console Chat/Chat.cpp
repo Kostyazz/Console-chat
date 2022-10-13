@@ -37,7 +37,7 @@ void Chat::initialize()
 			if (name == "") {
 				throw exception("ERROR: bad credentials in the file");
 			}
-			users.push_back(new User(login, password, name));
+			users[login] = make_pair(password, name);
 		}
 	}
 	catch (exception ex) {
@@ -99,7 +99,7 @@ void Chat::chatMenu()
 			}
 			else if (command == "/dm") {
 				for (auto user : users) {
-					if (user->getName() == arg) {
+					if (user.second.second == arg) {
 						to = arg;
 						break;
 					}
@@ -131,11 +131,9 @@ int Chat::login()
 	cin >> login;
 	cout << "Password: ";
 	cin >> password;
-	for (auto user : users) {
-		if (user->getLogin() == login && user->getPassword() == password) {
-			currentUserName = user->getName();
-			return 0;
-		}
+	if (users[login].first == password) {
+		currentUserName = users[login].second;
+		return 0;
 	}
 	cout << "Pair login-password not found" << endl;
 	return 1;
@@ -176,17 +174,17 @@ int Chat::signUp()
 		}
 	}
 	for (auto user : users) {
-		if (user->getLogin() == login) {
+		if (user.first == login) {
 			cout << "This login is taken" << endl;
 			return 1;
 		}
-		if (user->getName() == name) {
+		if (user.second.second == name) {
 			cout << "This name is taken" << endl;
 			return 1;
 		}
 
 	}
-	users.push_back(new User(login, password, name));
+	users[login] = make_pair(password, name);
 	try {
 		ofstream loginFile;
 		loginFile.open("Login.txt", ios::app);

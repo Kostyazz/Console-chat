@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include<unordered_map>
 #include "User.h"
 #include "Message.h"
 
@@ -10,7 +11,7 @@ class Chat
 {
 private:
 	string currentUserName = "";
-	vector<User*> users;
+	unordered_map< string, pair<string, string> > users;
 	vector<Message*> messages;
 	const string channel = "#all";
 public:
