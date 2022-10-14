@@ -26,21 +26,21 @@ void Chat::initialize()
 			loginFile.ignore();
 			for (char c : login) {
 				if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9')) {
-					throw exception("ERROR: bad credentials in the file");
+					throw runtime_error("ERROR: bad credentials in the file");
 				}
 			}
 			for (char c : name) {
 				if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9')) {
-					throw exception("ERROR: bad credentials in the file");
+					throw runtime_error("ERROR: bad credentials in the file");
 				}
 			}
 			if (name.empty()) {
-				throw exception("ERROR: bad credentials in the file");
+				throw runtime_error("ERROR: bad credentials in the file");
 			}
 			users[login] = make_pair(password, name);
 		}
 	}
-	catch (exception& ex) {
+	catch (runtime_error& ex) {
 		cerr << ex.what() << endl;
 		exit(1);
 	}
@@ -196,7 +196,7 @@ int Chat::signUp()
 		loginFile << endl << login << " " << password << " " << name;
 		
 	}
-	catch (exception ex) {
+	catch (runtime_error& ex) {
 		cerr << ex.what() << endl;
 		exit(1);
 	}
